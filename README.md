@@ -117,15 +117,29 @@ TextClassifier_Predict(cm, (params.inputFile + ".xml").c_str(), 3, text);
 TextClassifier_PrintInfo(cm);
 TextClassifier_Destroy(cm);
 ```
-**Recompilation**
+
+Data
+----
+
+The training/test data are in the *data* directory. 
+To downloat all training data:
+1. cd ./data
+2. wget http://cental.fltr.ucl.ac.be/team/panchenko/stc/data.tgz && tar xzf data.tgz && rm -f data.tgz
+
+Recompilation
+-------------
 
 On Ubuntu 11.10 or higher install in addition to the packages indicated above:
 
-1. sudo apt-get install libc6-dev-i386
+1. cd ./include
 
-2. sudo apt-get install g++-multilib
+2. wget http://cental.fltr.ucl.ac.be/team/panchenko/stc/boost-include.tgz && tar xzf boost-include.tgz && rm -f boost-include.tgz
 
-3. make
+3. sudo apt-get install libc6-dev-i386
+
+4. sudo apt-get install g++-multilib
+
+5. make
 
 Note: Alternatively to the make, you can build the sources in Eclipse. The Eclipse CDT projects are in library and client directories. Build in the Release mode.
 
