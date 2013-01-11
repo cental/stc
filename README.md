@@ -96,7 +96,7 @@ Options:
 
 4. Copy *textclassifier.h* and *iniparam.h* to your include directory.
 
-5. Include *textclassifier.h* file in your C/C++ program.
+5. Include *textclassifier.h* file in your C or C++ program.
 
 6. Use functions defined *textclassifier.h* to manipulate the classifier (see the header for the documentation). An example of library usage:
 
