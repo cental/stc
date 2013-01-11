@@ -36,7 +36,7 @@ A dependency of *libshort_text_classifier.so*.
 **System requirements**
 
 Ubuntu Linux. The software was tested on 64-bit Ubuntu Lunux 11.10 and 12.04.
-The library was compiled in 32-bit Release mode with g++ (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3 
+The program was compiled in 32-bit Release mode with g++ (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3 
 on Ubuntu Linux 12.04 64-bit. 
 
 **Installation**
