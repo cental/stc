@@ -92,7 +92,7 @@ Options:
 
 **Usage of the library**
 
-3. Link your C/C++ program to *libshort_text_classifier.so*. Directory client-sample contains an example of a C program linked to the library (see makefile in Debug directory). You can open client-sample with Eclipse CDT or compile it with the provided makefile. 
+3. Link your C or C++ program to *libshort_text_classifier.so*. Directory client-sample contains an example of a C program linked to the library (see makefile in Debug directory). You can open client-sample with Eclipse CDT or compile it with the provided makefile. 
 
 4. Copy *textclassifier.h* and *iniparam.h* to your include directory.
 
