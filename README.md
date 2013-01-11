@@ -123,7 +123,9 @@ Data
 
 The training/test data are in the *data* directory. 
 To downloat all training data:
+
 1. cd ./data
+
 2. wget http://cental.fltr.ucl.ac.be/team/panchenko/stc/data.tgz && tar xzf data.tgz && rm -f data.tgz
 
 Recompilation
