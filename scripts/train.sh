@@ -15,6 +15,7 @@ verbose="-v true" # to quite use "", not "-v false"
 
 # Train 
 $icop -M t -i $model/train.xml -m $model/model -V $model/vocabulary.csv -s $model/stopwords.csv -c $model/stopos.csv -N u -r $model/relations.csv 
+rm $model/model.csv
 
 # Validate
 ./classify.sh $model/valid.xml $model
