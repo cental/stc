@@ -44,7 +44,7 @@ public:
 	Classifier(string stopwords_file, string stopos_file, string vocabulary_file,
 			string model_file, string relations_file, bool verbose = false);
 	virtual ~Classifier();
-	bool train(string in_training_file,	bool is_unit_length=true);
+	bool train(string in_training_file, bool is_unit_length=true);
 	bool train(TextToClassify* text, bool is_unit_length=true);
 	bool predict(TextToClassify* text, string output_file, TextExpanderParams* exp_params,
 			bool is_unit_length=true);

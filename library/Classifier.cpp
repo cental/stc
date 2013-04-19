@@ -33,7 +33,6 @@ Classifier::Classifier(string stopwords_file, string stopos_file,
 			file_exists(model_file.c_str(), false);
 	if(prediction_resources_exist) load_predict_resources();
 	if(_verbose) printf("Classifier was loaded.\n");
-
 }
 
 bool Classifier::load_train_resources(){
@@ -457,6 +456,7 @@ bool Classifier::train(string input_file, bool is_unit_length) {
 	}
 
 	// Load training data
+	sprintf(stderr, "Input file: %s\n", input_file.c_str());
 	TextToClassify* texts = load_texts(input_file);
 	if(!texts){
 		printf("Error: cannot load text from XML file '%s'\n", input_file.c_str());

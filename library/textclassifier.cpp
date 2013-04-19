@@ -29,6 +29,16 @@ int TextClassifier_Add(void* vThis, TextToClassify* text){
 	}
 }
 
+int TextClassifier_AddXml(void* vThis, const char* sTrainXmlFilename){
+	if(vThis){
+		ClassifierManager* cm = static_cast<ClassifierManager*>(vThis);
+		return cm->add_model(string(sTrainXmlFilename), true);
+	}
+	else{
+		printf("TextClassifier does not exist.\n");
+		return -1;
+	}
+}
 void TextClassifier_Reload(void* vThis, char* sResourcesDir, int bVerbose){
 	if(vThis){
 		ClassifierManager* cm = static_cast<ClassifierManager*>(vThis);
@@ -56,6 +66,17 @@ void TextClassifier_Train(void* vThis, int nModel, TextToClassify* pTextToTrain)
 	if(vThis){
 		ClassifierManager* cm = static_cast<ClassifierManager*>(vThis);
 		cm->train(nModel, pTextToTrain, true);
+	}
+	else{
+		printf("TextClassifier does not exist.\n");
+	}
+	return;
+}
+
+void TextClassifier_TrainXml(void* vThis, int nModel, const char* sTrainXmlFilename) {
+	if(vThis){
+		ClassifierManager* cm = static_cast<ClassifierManager*>(vThis);
+		cm->train(nModel, string(sTrainXmlFilename), true);
 	}
 	else{
 		printf("TextClassifier does not exist.\n");

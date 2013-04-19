@@ -57,20 +57,21 @@ void TextClassifier_Reload(void* vThis, char* sResourcesDir, int bVerbose);
  * */
 void TextClassifier_Predict(void* vThis, const char* sOut, int nModel, TextToClassify* pTextToCls);
 
-
 /**
  * Performs training of a new model. Add a new model to the existing ones with default
  * parameters. The model is trained on the provided input texts.
  * If -1 is returned then error is occured and a model was not trained.
  * Otherwise a model_id is returned. It should be used to access the model.
  * */
-int TextClassifier_Add(void* vThis, TextToClassify* text);
+int TextClassifier_Add(void* vThis, TextToClassify* pTrainTexts);
+int TextClassifier_AddXml(void* vThis, const char* sTrainXmlFilename);
 
 /**
  * Performs re-training of a new or re-training of an existing model. The training data are provided
  * in pTextToTrain.
  * */
-void TextClassifier_Train(void* vThis, int nModel, TextToClassify* pTextToTrain);
+void TextClassifier_Train(void* vThis, int nModel, TextToClassify* pTrainTexts);
+void TextClassifier_TrainXml(void* vThis, int nModel, const char* sTrainXmlFilename);
 
 /**
  * Prints information about a text classifier and the loaded models to the standard output.

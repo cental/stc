@@ -77,6 +77,29 @@ int ClassifierManager::get_new_model_id(){
  * Add a new model to the existing ones with default parameters.
  * The model is trained on the provided input texts.
  * */
+int ClassifierManager::add_model(string train_filename, bool is_unit_length) {
+	int model_id = get_new_model_id();
+	std::stringstream stm;
+	stm << model_id;
+	string model_id_str = stm.str();
+	string vocabulary = _resources_dir +  model_id_str + "_" + DEFAULT_VOCABULARY;
+	string model = _resources_dir + model_id_str + "_" + DEFAULT_MODEL;
+
+	Classifier* classifier = new Classifier(
+		_default_stopwords, _default_stopos, vocabulary, model, _default_relations, _verbose);
+	_classifiers.insert(make_pair(model_id, classifier));
+
+	if(!train(model_id, train_filename, is_unit_length)){
+		printf("Error: the model '%d' was not trained.\n", model_id);
+		return -1;
+	}
+	return model_id;
+}
+
+/**
+ * Add a new model to the existing ones with default parameters.
+ * The model is trained on the provided input texts.
+ * */
 int ClassifierManager::add_model(TextToClassify* text, bool is_unit_length) {
 	int model_id = get_new_model_id();
 	std::stringstream stm;
@@ -258,6 +281,7 @@ bool ClassifierManager::predict(int model_id, TextToClassify* text,
 	}
 }
 
+
 bool ClassifierManager::train(int model_id, TextToClassify* text, bool is_unit_length) {
 	if(!_models_loaded){
 		printf("Error: no model is loaded. Load the models first even if you need to train a new model. The model should be pre-loaded before training.\n");
@@ -267,6 +291,22 @@ bool ClassifierManager::train(int model_id, TextToClassify* text, bool is_unit_l
 	Classifier* classifier = get(model_id);
 	if(classifier){
 		classifier->train(text, is_unit_length);
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool ClassifierManager::train(int model_id, string train_filename, bool is_unit_length){
+	if(!_models_loaded){
+		printf("Error: no model is loaded. Load the models first even if you need to train a new model. The model should be pre-loaded before training.\n");
+		return false;
+	}
+
+	Classifier* classifier = get(model_id);
+	if(classifier){
+		classifier->train(train_filename, is_unit_length);
 		return true;
 	}
 	else{

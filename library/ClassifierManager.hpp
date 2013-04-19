@@ -13,9 +13,11 @@ public:
 	virtual ~ClassifierManager();
 	bool predict(int model_id, TextToClassify* text, string output_file,
 			TextExpanderParams* exp_params,	bool is_unit_length=true);
-	bool predict(int model_id, TextToClassify* text, string output_file);
-	bool train(int model_id, TextToClassify* text, bool is_unit_length=true);
-	int add_model(TextToClassify* text, bool is_unit_length=true);
+	bool predict(int model_id, TextToClassify* predict_texts, string output_file);
+	bool train(int model_id, TextToClassify* train_texts, bool is_unit_length=true);
+	bool train(int model_id, string train_filename, bool is_unit_length=true);
+	int add_model(TextToClassify* train_texts, bool is_unit_length=true);
+	int add_model(string train_xml_filename, bool is_unit_length=true);
 	bool reload(string resources_dir, bool verbose);
 	int get_models_num();
 	int* get_model_ids();
