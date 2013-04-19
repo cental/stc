@@ -9,3 +9,4 @@ fi
 sudo cp ./bin/libshort_text_classifier.so /usr/lib32/
 sudo ldconfig
 echo "The library libshort_text_classifier.so was installed in /usr/lib32/"
+
