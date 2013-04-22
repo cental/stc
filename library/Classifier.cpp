@@ -101,97 +101,113 @@ TextToClassify* Classifier::load_texts(string input_fpath) {
 		printf("Error: input XML file '%s' doesn't exist!\n", input_fpath.c_str());
 		return NULL;
 	}
-
-	// Read XML file to memory
-	string xml_string;
-	ifstream xml_file;
-	xml_file.open(input_fpath.c_str());
-	string line;
-	getline(xml_file,line);
-	while (xml_file) {
-		xml_string += line + "\n";
+	
+	try{
+		// Read XML file to memory
+		string xml_string;
+		ifstream xml_file;
+		xml_file.open(input_fpath.c_str());
+		string line;
 		getline(xml_file,line);
-	}
-	if (xml_string.length() <= 0){
-		printf("Error: Input XML file %s is void!\n", input_fpath.c_str());
+		while (xml_file) {
+			xml_string += line + "\n";
+			getline(xml_file,line);
+		}
+		if (xml_string.length() <= 0){
+			printf("Error: Input XML file %s is void!\n", input_fpath.c_str());
+			return NULL;
+		}
+
+		// Parse XML content
+		char* xml_text = (char*)xml_string.c_str();
+		xml_document<> document;
+		//cout << xml_text << endl; // debug
+		document.parse<0>(xml_text);
+		//regex remove_parse_pattern("[^ ]+#[^# ]+#", regex_constants::icase|regex_constants::perl);
+		//regex space_token_pattern("\\s+#[^# ]+#\\s+", regex_constants::icase|regex_constants::perl);
+		regex whitespace_pattern("\\s+");
+
+		TextToClassify* text_beg = 0;
+		TextToClassify* text_prev = 0;
+		TextToClassify* text_cur = 0;
+		for (xml_node<>* node = document.first_node(ROOT_TAG)->first_node(TEXT_TAG); node; node = node->next_sibling()) {
+			// Create a structure for current XML element
+			text_cur = create_text();
+
+			// Read class attribute
+			xml_attribute<> *attr = node->first_attribute(CLASS_ATT);
+			string label(attr->value());
+			if(label == POSITIVE_CLASS_ATT) text_cur->cClass = POSITIVE_CLASS_I;
+			else if(label == NEGATIVE_CLASS_ATT) text_cur->cClass = NEGATIVE_CLASS_I;
+			else{
+				printf("Wrong  class attribute value %s\n", label.c_str());
+				continue;
+			}
+
+			// Load original string
+			char* filename_original = node->first_node(ORIGINAL_TAG)->value();
+			text_cur->sText = new char[strlen(filename_original)+1];
+			sprintf(text_cur->sText, "%s", filename_original);
+
+			// Load tokens
+			string tokens_str(node->first_node(LEMMAS_TAG)->value());
+			sregex_token_iterator token_it(tokens_str.begin(), tokens_str.end(), whitespace_pattern, -1);
+			sregex_token_iterator end_it;
+			TokenToClassify* token_cur = 0;
+			TokenToClassify* token_prev = 0;
+			string token;
+			while(token_it != end_it) {
+				// Create a token
+				token_cur = create_token();
+				token = *token_it;
+
+				// Fill the token with data
+				stringstream iss(token);
+				string tmp;
+				if (!getline(iss, tmp, '#')) {token_it++; continue;}
+				algorithm::to_lower(tmp);
+				token_cur->sSurface = new char[strlen(tmp.c_str())+1];
+				sprintf(token_cur->sSurface, "%s", tmp.c_str());
+
+				if (!getline(iss, tmp, '#')) {token_it++; continue;}
+				token_cur->sPOS = new char[strlen(tmp.c_str())+1];
+				sprintf(token_cur->sPOS, "%s", tmp.c_str());
+
+				if (!getline(iss, tmp, '#')) {token_it++; continue;}
+				algorithm::to_lower(tmp);
+				token_cur->sLemma = new char[strlen(tmp.c_str())+1];
+				sprintf(token_cur->sLemma, "%s", tmp.c_str());
+
+				// Save the token
+				if(text_cur->pToken == NULL) text_cur->pToken = token_cur; // First token -> previous is null
+				else token_prev->pNext = token_cur; // Not first token -> set previous
+				token_prev = token_cur;
+
+				// Move to the next token
+				token_it++;
+			}
+
+			// Set a link between previous and current structures
+			if(text_beg == NULL) text_beg = text_cur;
+			else text_prev->pNext = text_cur;
+			text_prev = text_cur;
+		}
+		return text_beg;
+	} 
+	catch(const rapidxml::parse_error &e) {
+		cout << "Error: cannot load text " << input_fpath.c_str() << 
+			". XML parse error: " << e.what() << endl;
+                return NULL;
+	} 
+	catch (const std::exception& e) {
+		cout << "Error: cannot load text" << input_fpath.c_str() << 
+			": " << e.what() << endl;
+		return NULL;
+	} 
+	catch (...) {
+		cout << "Error: cannot load text " << input_fpath.c_str() << endl;
 		return NULL;
 	}
-
-	// Parse XML content
-	char* xml_text = (char*)xml_string.c_str();
-	xml_document<> document;
-	document.parse<0>(xml_text);
-	//regex remove_parse_pattern("[^ ]+#[^# ]+#", regex_constants::icase|regex_constants::perl);
-	//regex space_token_pattern("\\s+#[^# ]+#\\s+", regex_constants::icase|regex_constants::perl);
-	regex whitespace_pattern("\\s+");
-
-	TextToClassify* text_beg = 0;
-	TextToClassify* text_prev = 0;
-	TextToClassify* text_cur = 0;
-	for (xml_node<>* node = document.first_node(ROOT_TAG)->first_node(TEXT_TAG); node; node = node->next_sibling()) {
-		// Create a structure for current XML element
-		text_cur = create_text();
-
-		// Read class attribute
-		xml_attribute<> *attr = node->first_attribute(CLASS_ATT);
-		string label(attr->value());
-		if(label == POSITIVE_CLASS_ATT) text_cur->cClass = POSITIVE_CLASS_I;
-		else if(label == NEGATIVE_CLASS_ATT) text_cur->cClass = NEGATIVE_CLASS_I;
-		else{
-			printf("Wrong  class attribute value %s\n", label.c_str());
-			continue;
-		}
-
-		// Load original string
-		char* filename_original = node->first_node(ORIGINAL_TAG)->value();
-		text_cur->sText = new char[strlen(filename_original)+1];
-		sprintf(text_cur->sText, "%s", filename_original);
-
-		// Load tokens
-		string tokens_str(node->first_node(LEMMAS_TAG)->value());
-		sregex_token_iterator token_it(tokens_str.begin(), tokens_str.end(), whitespace_pattern, -1);
-		sregex_token_iterator end_it;
-		TokenToClassify* token_cur = 0;
-		TokenToClassify* token_prev = 0;
-		string token;
-		while(token_it != end_it) {
-			// Create a token
-			token_cur = create_token();
-			token = *token_it;
-
-			// Fill the token with data
-			stringstream iss(token);
-			string tmp;
-			if (!getline(iss, tmp, '#')) {token_it++; continue;}
-			algorithm::to_lower(tmp);
-			token_cur->sSurface = new char[strlen(tmp.c_str())+1];
-			sprintf(token_cur->sSurface, "%s", tmp.c_str());
-
-			if (!getline(iss, tmp, '#')) {token_it++; continue;}
-			token_cur->sPOS = new char[strlen(tmp.c_str())+1];
-			sprintf(token_cur->sPOS, "%s", tmp.c_str());
-
-			if (!getline(iss, tmp, '#')) {token_it++; continue;}
-			algorithm::to_lower(tmp);
-			token_cur->sLemma = new char[strlen(tmp.c_str())+1];
-			sprintf(token_cur->sLemma, "%s", tmp.c_str());
-
-			// Save the token
-			if(text_cur->pToken == NULL) text_cur->pToken = token_cur; // First token -> previous is null
-			else token_prev->pNext = token_cur; // Not first token -> set previous
-			token_prev = token_cur;
-
-			// Move to the next token
-			token_it++;
-		}
-
-		// Set a link between previous and current structures
-		if(text_beg == NULL) text_beg = text_cur;
-		else text_prev->pNext = text_cur;
-		text_prev = text_cur;
-	}
-
-	return text_beg;
 }
 
 /**
@@ -456,7 +472,7 @@ bool Classifier::train(string input_file, bool is_unit_length) {
 	}
 
 	// Load training data
-	sprintf(stderr, "Input file: %s\n", input_file.c_str());
+	printf("Input file: %s\n", input_file.c_str());
 	TextToClassify* texts = load_texts(input_file);
 	if(!texts){
 		printf("Error: cannot load text from XML file '%s'\n", input_file.c_str());

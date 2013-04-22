@@ -88,7 +88,7 @@ int ClassifierManager::add_model(string train_filename, bool is_unit_length) {
 	Classifier* classifier = new Classifier(
 		_default_stopwords, _default_stopos, vocabulary, model, _default_relations, _verbose);
 	_classifiers.insert(make_pair(model_id, classifier));
-
+	
 	if(!train(model_id, train_filename, is_unit_length)){
 		printf("Error: the model '%d' was not trained.\n", model_id);
 		return -1;
