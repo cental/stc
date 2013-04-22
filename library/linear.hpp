@@ -74,9 +74,8 @@ void set_print_string_function(void (*print_func) (const char*));
 
 //void predict_fs(const char* vectors_file, const char* predict_file, struct model* classif_model);
 int predict_main(int argc, char **argv);
-int train_main(int argc, char **argv);
+//int train_main(int argc, char **argv);
 int train_fs(const char* input_file_name, const char* model_file_name);
-
 
 #ifdef __cplusplus
 }

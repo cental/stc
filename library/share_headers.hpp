@@ -30,7 +30,7 @@
 
 // Other constants
 
-#define DELETE_TMP false
+#define DELETE_TMP true
 #define MIN_FEATURES_NUM 1 // Minimum number of features in a bag-of-words vector
 #define CLASS_NUM 2
 

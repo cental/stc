@@ -4,11 +4,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <string>
 #include "linear.hpp"
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 #define INF HUGE_VAL
 
 void print_null(const char *s) {}
+double do_cross_validation(int nr_fold);
 
 void exit_with_help()
 {
@@ -73,100 +75,68 @@ static char* readline(FILE *input)
 void set_default_params();
 void parse_command_line(int argc, char **argv, char *input_file_name, char *model_file_name);
 void read_problem(const char *filename);
-void do_cross_validation();
 
 struct feature_node *x_space;
 struct parameter param;
 struct problem prob;
 struct model* model_train;
 int flag_cross_validation;
-int nr_fold;
+int nr_fold = 10;
 double bias;
 
 int train_fs(const char* input_file_name, const char* model_file_name){
+	// Initialization
 	const char* error_msg;
-
 	set_default_params();
 	read_problem(input_file_name);
 	error_msg = check_parameter(&prob,&param);
-
 	if(error_msg){
 		fprintf(stderr,"Error: %s\n",error_msg);
 		return -1;
 	}
 
-	if(flag_cross_validation){
-		do_cross_validation();
+	// Do the cross-validation and save accuracy
+	double accuracy = do_cross_validation(nr_fold);
+	std::string info_fpath = std::string(model_file_name) + ".info";
+	FILE* info = fopen(info_fpath.c_str(), "w");
+	fprintf(info, "Accuracy : %f", accuracy);
+	//fflush(info);	
+	fclose(info);
+
+	// Train a model on the whole dataset
+	model_train=train(&prob, &param);
+	if(save_model(model_file_name, model_train)){
+		fprintf(stderr,"can't save model to file %s\n",model_file_name);
+		return -1;
 	}
-	else{
-		model_train=train(&prob, &param);
-		if(save_model(model_file_name, model_train)){
-			fprintf(stderr,"can't save model to file %s\n",model_file_name);
-			return -1;
-		}
-	}
+
+	// Free resources
 	destroy_param(&param);
 	free(prob.y);
 	free(prob.x);
 	free(x_space);
 	free(line);
-
+	
 	return 0;
 }
 
-
-int train_main(int argc, char **argv){
-	char input_file_name[1024];
-	char model_file_name[1024];
-	const char *error_msg;
-
-	parse_command_line(argc, argv, input_file_name, model_file_name);
-	read_problem(input_file_name);
-	error_msg = check_parameter(&prob,&param);
-
-	if(error_msg)
-	{
-		fprintf(stderr,"Error: %s\n",error_msg);
-		exit(1);
-	}
-
-	if(flag_cross_validation)
-	{
-		do_cross_validation();
-	}
-	else
-	{
-		model_train=train(&prob, &param);
-		if(save_model(model_file_name, model_train))
-		{
-			fprintf(stderr,"can't save model to file %s\n",model_file_name);
-			exit(1);
-		}
-		free_and_destroy_model(&model_train);
-	}
-	destroy_param(&param);
-	free(prob.y);
-	free(prob.x);
-	free(x_space);
-	free(line);
-
-	return 0;
-}
-
-void do_cross_validation()
+double do_cross_validation(int nr_folds)
 {
 	int i;
 	int total_correct = 0;
 	int *target = Malloc(int, prob.l);
 
-	cross_validation(&prob,&param,nr_fold,target);
-
+	cross_validation(&prob,&param,nr_folds,target);
+	
 	for(i=0;i<prob.l;i++)
 		if(target[i] == prob.y[i])
 			++total_correct;
-	printf("Cross Validation Accuracy = %g%%\n",100.0*total_correct/prob.l);
-
+	printf("prob.l=%d\n",prob.l);
+	double accuracy = 100.0*total_correct/prob.l;
+	printf("Cross Validation Accuracy = %f\n", accuracy);
 	free(target);
+	return accuracy;
+	
 }
 
 
@@ -180,7 +150,7 @@ void set_default_params(){
 	param.nr_weight = 0;
 	param.weight_label = NULL;
 	param.weight = NULL;
-	flag_cross_validation = 0;
+	flag_cross_validation = 1;
 	bias = -1;
 
 	set_print_string_function(print_func);
