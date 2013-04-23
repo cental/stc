@@ -43,7 +43,7 @@ def main():
 # Functions
 
 def load_text(fname):
-	n = 1500
+	n = 999999
 	f = open(fname, "r")
 	text = ""
 	for i, line in enumerate(f):
