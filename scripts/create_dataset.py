@@ -7,7 +7,6 @@ import os
 from lemmatizer import lemmatize_file
 import shutil
 
-
 def load_texts(fname):
     """Reads a texts from a utf-8 CSV file 'fname' in the follwing format: 'text\n'
     """
@@ -27,7 +26,6 @@ def load_texts(fname):
     #       print "==%s==%s==%s==" % (i, t, texts[t])
 
     return texts
-
 
 def cat_files(input1_fpath, input2_fpath, output_fpath, prefix_line = "", postfix_line = ""):
     output_file = open(output_fpath, "w")

@@ -20,7 +20,7 @@ Usage:\t./%s <positives-file> <negatives-file>
 """ % os.path.basename(sys.argv[0])
 
 MIN_ARG_NUM = 3 # program name + required parameters
-ENDPOINT = "http://icop.cental.be/train/index.php"
+ENDPOINT = "http://localhost/train/index.php"
 
 # Main function 
 
@@ -32,37 +32,20 @@ def main():
 	
 	positives_fname = sys.argv[1]
 	negatives_fname = sys.argv[2]
-
-	#if len(sys.argv) > MIN_ARG_NUM:
-	#	start_with = int(sys.argv[2])
-	#else:
-	#	start_with = 0
-	
 	icop_query(positives_fname, negatives_fname, get=False)
 
 # Functions
 
-def load_text(fname):
-	n = 999999
-	f = open(fname, "r")
-	text = ""
-	for i, line in enumerate(f):
-		if i < n: text = text + "\n" + line
-	f.close()
-	return text
-
 def icop_query(positives_fname, negatives_fname, get=True):
 	print "positives:", positives_fname
 	print "negatives:", negatives_fname
-	positives = load_text(positives_fname)
-	negatives = load_text(negatives_fname)
-
-	params = { "positives":positives, "negatives":negatives,\
-			"model":"-1", "name":"model from a service " + time.ctime() }
+	
+	files = { "negatives" : open(negatives_fname,"r"), "positives" : open(positives_fname,"r") }
+	params = { "model":"-1", "name":"model from a service " + time.ctime() }
 	if get:
 		content = requests.get(ENDPOINT, params=params)
 	else:
-		content = requests.post(ENDPOINT, params)
+		content = requests.post(ENDPOINT, params=params, files=files)
 	print content.content
 
 	return content	

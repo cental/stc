@@ -10,7 +10,7 @@ import re
 import treetaggerwrapper
 import unicodedata
 
-TREETAGGER_ROOT = './treetagger/'
+TREETAGGER_ROOT = '/home/beaufort/stc/scripts/treetagger/'
 
 # CSV file
 SEPARATOR = ";"
