@@ -9,6 +9,7 @@ import sys
 import re
 import treetaggerwrapper
 import unicodedata
+from xml.sax.saxutils import escape
 
 TREETAGGER_ROOT = '/home/beaufort/stc/scripts/treetagger/'
 
@@ -54,7 +55,6 @@ def clean_text(text):
     text = re.sub("%\d\d", "", text)
     text = re.sub("%[a-f][a-f]", " ", text)
     text = re.sub("&[a-z]+", " ", text)
-    
 
     text = strip_accents(text)
                         
@@ -106,12 +106,12 @@ def escape_xml_file(xml_fpath, output_fpath="tmp"):
     for line in xml_file:        
         # Skip the void lines
         if line.strip() == "": continue
-        line = re.sub("caterogy>", "category>", line)
+	#line = re.sub("caterogy>", "category>", line)
         line = re.sub("&", "&amp;", line)
         line = re.sub("\"", "&quot;", line)
         line = re.sub("'", "&apos;", line)
-        #line = re.sub("<", "&lt;", line)
-        #line = re.sub(">", "&gt;", line)
+        line = re.sub("<", "&lt;", line)
+        line = re.sub(">", "&gt;", line)
        
         # Write normalized line to output
         output_file.write(line)
@@ -184,11 +184,10 @@ def lemmatize_file(input_fpath, output_fpath, is_xml, is_positive_class, add_tex
                                 (POSITIVE_ATT if is_positive_class else NEGATIVE_ATT) + ">\n")                        
             output_file.write("<" + ORIGINAL_TAG + ">")
             original_line = re.sub(SEPARATOR, " ", original_line)
-            original_line = original_line.strip()            
-            output_file.write(original_line)
+            output_file.write(escape(original_line.strip()))
             output_file.write("</" + ORIGINAL_TAG + ">\n")            
             output_file.write("<" + LEMMAS_TAG + ">")
-            output_file.write(lemmas_line.strip())
+            output_file.write(escape(lemmas_line.strip()))
             output_file.write("</" + LEMMAS_TAG + ">\n")            
             output_file.write("</" + TEXT_TAG + ">\n")
             id = id + 1
